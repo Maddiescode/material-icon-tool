@@ -1113,6 +1113,7 @@
   // Detail panel
   function openDetailPanel(icon) {
     activeIcon = icon;
+    renderIcons();
     document.getElementById('detail-icon').textContent = icon.name;
     document.getElementById('detail-name').textContent = icon.name.replace(/_/g, ' ');
     document.getElementById('detail-technical').textContent = icon.name;
