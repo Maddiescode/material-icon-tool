@@ -533,7 +533,7 @@
 
 <header>
   <div class="header-top">
-    <h1>Material to Visor</h1>
+    <h1 id="title" onclick="handleTitleClick()" style="cursor:pointer;">Material to Visor</h1>
     <div class="settings-badge">
       <span>Rounded</span>
       <span>Outlined</span>
@@ -1094,11 +1094,6 @@
     const name = activeIcon.name;
     const btn = document.getElementById('detail-btn-download');
 
-    if (downloadedIcons.has(name)) {
-      showToast('warning', `"${name}" is al gedownload`, 'warning');
-      return;
-    }
-
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Downloaden...';
 
@@ -1125,6 +1120,42 @@
     const input = document.getElementById('search');
     input.value = tag;
     input.dispatchEvent(new Event('input'));
+  }
+
+  // Secret reset button (4 clicks on title)
+  let titleClicks = 0;
+  function handleTitleClick() {
+    titleClicks++;
+    if (titleClicks === 4) {
+      resetAllStats();
+      titleClicks = 0;
+    } else {
+      setTimeout(() => { titleClicks = 0; }, 2000); // Reset counter after 2 seconds
+    }
+  }
+
+  function resetAllStats() {
+    // Confirm before resetting
+    if (!confirm('Weet je zeker dat je ALLES wilt resetten? Downloads, statistieken en alle syncs worden gewist.')) {
+      return;
+    }
+
+    // Clear local state
+    downloadedIcons.clear();
+    usageCounts = {};
+    selectedIcons.clear();
+    localStorage.clear();
+
+    // Clear Firebase
+    if (db) {
+      db.ref('icons').remove();
+      db.ref('downloaded').remove();
+    }
+
+    showToast('check_circle', 'Alles gereset!', 'success');
+    updateStats();
+    renderIcons();
+    closeDetailPanel();
   }
 
   // Search with debounce
