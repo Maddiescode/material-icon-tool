@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material Icons Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    .material-symbols-rounded {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 24;
+      font-size: 24px;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .header-top h1 {
+      font-size: 18px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .settings-badge {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .settings-badge span {
+      background: #f0f0f0;
+      color: #666;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-container .material-symbols-rounded {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 20px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 10px 12px 10px 40px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-container input:focus {
+      border-color: #4285f4;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #f5f5f5; }
+
+    .btn.primary {
+      background: #4285f4;
+      color: #fff;
+      border-color: #4285f4;
+    }
+
+    .btn.primary:hover { background: #3367d6; }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .btn .material-symbols-rounded { font-size: 18px; }
+
+    .selection-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #e8f0fe;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #1967d2;
+    }
+
+    .selection-bar.hidden { display: none; }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .filter-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      color: #555;
+      user-select: none;
+    }
+
+    .filter-toggle input:checked + .material-symbols-rounded {
+      color: #4285f4;
+    }
+
+    .downloaded-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .selection-bar .btn {
+      padding: 4px 12px;
+      font-size: 12px;
+      border-color: #c5d7f7;
+    }
+
+    .stats {
+      padding: 8px 24px;
+      font-size: 12px;
+      color: #888;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 4px;
+      padding: 16px 24px;
+    }
+
+    .icon-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 8px 10px;
+      background: #fff;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      user-select: none;
+    }
+
+    .icon-card:hover {
+      background: #f8f9fa;
+      border-color: #e0e0e0;
+    }
+
+    .icon-card.selected {
+      border-color: #4285f4;
+      background: #e8f0fe;
+    }
+
+    .icon-card.active {
+      border-color: #333;
+      background: #f0f0f0;
+    }
+
+    .icon-card.downloaded .download-indicator {
+      display: flex;
+    }
+
+    .download-indicator {
+      display: none;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 16px;
+      height: 16px;
+      background: #34a853;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .download-indicator .material-symbols-rounded {
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .icon-card .icon-name {
+      font-size: 10px;
+      color: #666;
+      text-align: center;
+      word-break: break-word;
+      line-height: 1.3;
+      max-width: 100%;
+    }
+
+    .icon-card .material-symbols-rounded.icon-display {
+      font-size: 28px;
+      color: #333;
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 10px 16px;
+      background: #323232;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 13px;
+      animation: slideIn 0.2s ease, fadeOut 0.3s ease 2.5s forwards;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast .material-symbols-rounded { font-size: 18px; }
+
+    .toast.success { background: #1b7a3d; }
+    .toast.warning { background: #e37400; }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(10px); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 24px;
+      color: #999;
+    }
+
+    .empty-state .material-symbols-rounded {
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 80px 24px;
+      color: #999;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e0e0e0;
+      border-top-color: #4285f4;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Layout: main area + detail panel */
+    .main-layout {
+      display: flex;
+    }
+
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      transition: margin-right 0.25s ease;
+    }
+
+    .main-content.panel-open {
+      margin-right: 340px;
+    }
+
+    .detail-panel {
+      position: fixed;
+      top: 0;
+      right: -340px;
+      width: 340px;
+      height: 100vh;
+      background: #fff;
+      border-left: 1px solid #e0e0e0;
+      z-index: 150;
+      transition: right 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .detail-panel.open {
+      right: 0;
+    }
+
+    .detail-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .detail-panel-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .detail-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    .detail-close:hover {
+      background: #f0f0f0;
+    }
+
+    .detail-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 24px;
+      gap: 12px;
+    }
+
+    .detail-preview .icon-large {
+      font-size: 96px;
+      color: #1a1a1a;
+    }
+
+    .detail-icon-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: #333;
+      text-align: center;
+    }
+
+    .detail-icon-technical {
+      font-size: 12px;
+      color: #999;
+      font-family: monospace;
+      background: #f5f5f5;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .detail-downloaded-badge {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #1b7a3d;
+      margin-top: 4px;
+    }
+
+    .detail-downloaded-badge.visible {
+      display: flex;
+    }
+
+    .detail-downloaded-badge .material-symbols-rounded {
+      font-size: 16px;
+      color: #1b7a3d;
+    }
+
+    .detail-actions {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      padding: 0 20px 24px;
+    }
+
+    .detail-actions .btn {
+      justify-content: center;
+      width: 100%;
+      padding: 10px 16px;
+    }
+
+    .detail-tags {
+      padding: 0 20px 20px;
+    }
+
+    .detail-tags h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .detail-tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .detail-tags-list span {
+      background: #f0f0f0;
+      color: #555;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .detail-tags-list span:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>Material Icons Tool</h1>
+    <div class="settings-badge">
+      <span>Rounded</span>
+      <span>Outlined</span>
+      <span>Weight 300</span>
+      <span>Grade 0</span>
+      <span>24px</span>
+    </div>
+  </div>
+  <div class="search-row">
+    <div class="search-container">
+      <span class="material-symbols-rounded">search</span>
+      <input type="text" id="search" placeholder="Zoek iconen..." autofocus>
+    </div>
+    <div class="action-buttons">
+      <button class="btn" id="btn-copy" disabled onclick="copySelected()">
+        <span class="material-symbols-rounded">content_copy</span>
+        Kopieer
+      </button>
+      <button class="btn primary" id="btn-download" disabled onclick="downloadSelected()">
+        <span class="material-symbols-rounded">download</span>
+        Download SVG
+      </button>
+    </div>
+  </div>
+  <div class="selection-bar hidden" id="selection-bar">
+    <span id="selection-count">0 geselecteerd</span>
+    <button class="btn" onclick="selectAll()">Selecteer alles</button>
+    <button class="btn" onclick="clearSelection()">Deselecteer</button>
+  </div>
+  <div class="filter-bar" id="filter-bar">
+    <label class="filter-toggle">
+      <input type="checkbox" id="show-downloaded-only" onchange="renderIcons()">
+      <span class="material-symbols-rounded" style="font-size:16px;">download_done</span>
+      Toon alleen gedownloade
+    </label>
+    <label class="filter-toggle">
+      <input type="checkbox" id="hide-downloaded" onchange="renderIcons()">
+      <span class="material-symbols-rounded" style="font-size:16px;">visibility_off</span>
+      Verberg gedownloade
+    </label>
+    <span class="downloaded-count" id="downloaded-count"></span>
+  </div>
+</header>
+
+<div class="main-layout">
+  <div class="main-content" id="main-content">
+    <div class="stats" id="stats"></div>
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Iconen laden...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-panel-header">
+      <h3>Icoon details</h3>
+      <button class="detail-close" onclick="closeDetailPanel()">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <div class="detail-preview">
+      <span class="material-symbols-rounded icon-large" id="detail-icon"></span>
+      <div class="detail-icon-name" id="detail-name"></div>
+      <div class="detail-icon-technical" id="detail-technical"></div>
+      <div class="detail-downloaded-badge" id="detail-downloaded">
+        <span class="material-symbols-rounded">check_circle</span>
+        Al gedownload
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn" id="detail-btn-copy" onclick="copyDetailIcon()">
+        <span class="material-symbols-rounded">content_copy</span>
+        Kopieer SVG
+      </button>
+      <button class="btn primary" id="detail-btn-download" onclick="downloadDetailIcon()">
+        <span class="material-symbols-rounded">download</span>
+        Download SVG
+      </button>
+    </div>
+    <div class="detail-tags" id="detail-tags-section">
+      <h4>Tags</h4>
+      <div class="detail-tags-list" id="detail-tags"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+  const ICON_SETTINGS = {
+    family: 'Material+Symbols+Rounded',
+    style: 'Rounded',
+    fill: 0,
+    weight: 300,
+    grade: 0,
+    opticalSize: 24
+  };
+
+  let allIcons = [];
+  let filteredIcons = [];
+  let selectedIcons = new Set();
+  let downloadedIcons = new Set();
+  let activeIcon = null; // currently shown in detail panel
+
+  // Load downloaded state from localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem('downloaded_icons') || '[]');
+    downloadedIcons = new Set(saved);
+  } catch(e) {}
+
+  function saveDownloaded() {
+    localStorage.setItem('downloaded_icons', JSON.stringify([...downloadedIcons]));
+  }
+
+  // Fetch icon list from Google
+  async function loadIcons() {
+    try {
+      const resp = await fetch('https://fonts.google.com/metadata/icons?incomplete=1');
+      const text = await resp.text();
+      // Response starts with )]}'  — strip it
+      const json = JSON.parse(text.replace(/^\)\]\}'/, ''));
+      // Deduplicate by icon name
+      const seen = new Set();
+      allIcons = [];
+      for (const icon of json.icons) {
+        if (seen.has(icon.name)) continue;
+        seen.add(icon.name);
+        allIcons.push({
+          name: icon.name,
+          tags: icon.tags || [],
+          categories: icon.categories || [],
+          version: icon.version
+        });
+      }
+      filteredIcons = allIcons;
+      updateStats();
+      renderIcons();
+    } catch(e) {
+      document.getElementById('content').innerHTML =
+        '<div class="empty-state"><span class="material-symbols-rounded">error</span><p>Kon iconen niet laden. Controleer je internetverbinding.</p></div>';
+    }
+  }
+
+  function updateStats() {
+    const dl = downloadedIcons.size;
+    document.getElementById('stats').textContent =
+      `${filteredIcons.length} iconen gevonden — ${allIcons.length} totaal — ${dl} gedownload`;
+  }
+
+  function renderIcons() {
+    const container = document.getElementById('content');
+    const hideDownloaded = document.getElementById('hide-downloaded').checked;
+    const showDownloadedOnly = document.getElementById('show-downloaded-only').checked;
+    let icons = filteredIcons;
+
+    // Make filters mutually exclusive
+    if (showDownloadedOnly) {
+      icons = icons.filter(i => downloadedIcons.has(i.name));
+      document.getElementById('hide-downloaded').disabled = true;
+    } else if (hideDownloaded) {
+      icons = icons.filter(i => !downloadedIcons.has(i.name));
+      document.getElementById('show-downloaded-only').disabled = true;
+    } else {
+      document.getElementById('hide-downloaded').disabled = false;
+      document.getElementById('show-downloaded-only').disabled = false;
+    }
+
+    // Update downloaded count
+    document.getElementById('downloaded-count').textContent =
+      downloadedIcons.size > 0 ? `${downloadedIcons.size} gedownload` : '';
+
+    if (icons.length === 0) {
+      container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">search_off</span><p>Geen iconen gevonden</p></div>';
+      return;
+    }
+
+    // Render in chunks for performance
+    const fragment = document.createDocumentFragment();
+    const grid = document.createElement('div');
+    grid.className = 'icon-grid';
+
+    icons.forEach(icon => {
+      const card = document.createElement('div');
+      card.className = 'icon-card';
+      if (selectedIcons.has(icon.name)) card.classList.add('selected');
+      if (downloadedIcons.has(icon.name)) card.classList.add('downloaded');
+      if (activeIcon && activeIcon.name === icon.name) card.classList.add('active');
+
+      card.innerHTML = `
+        <div class="download-indicator"><span class="material-symbols-rounded">check</span></div>
+        <span class="material-symbols-rounded icon-display">${icon.name}</span>
+        <span class="icon-name">${icon.name.replace(/_/g, ' ')}</span>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (e.shiftKey || e.ctrlKey || e.metaKey) {
+          // Modifier key: toggle selection
+          toggleSelect(icon.name, e);
+        } else {
+          // Normal click: open detail panel
+          openDetailPanel(icon);
+        }
+      });
+
+      grid.appendChild(card);
+    });
+
+    fragment.appendChild(grid);
+    container.innerHTML = '';
+    container.appendChild(fragment);
+  }
+
+  function toggleSelect(name, e) {
+    if (e && e.shiftKey && lastSelected) {
+      // Range select
+      const names = filteredIcons.map(i => i.name);
+      const start = names.indexOf(lastSelected);
+      const end = names.indexOf(name);
+      const range = names.slice(Math.min(start, end), Math.max(start, end) + 1);
+      range.forEach(n => selectedIcons.add(n));
+    } else if (selectedIcons.has(name)) {
+      selectedIcons.delete(name);
+    } else {
+      selectedIcons.add(name);
+    }
+    lastSelected = name;
+    updateSelectionUI();
+    renderIcons();
+  }
+
+  let lastSelected = null;
+
+  function updateSelectionUI() {
+    const count = selectedIcons.size;
+    const bar = document.getElementById('selection-bar');
+    const btnCopy = document.getElementById('btn-copy');
+    const btnDownload = document.getElementById('btn-download');
+
+    if (count > 0) {
+      bar.classList.remove('hidden');
+      document.getElementById('selection-count').textContent = `${count} geselecteerd`;
+      btnCopy.disabled = false;
+      btnDownload.disabled = false;
+    } else {
+      bar.classList.add('hidden');
+      btnCopy.disabled = true;
+      btnDownload.disabled = true;
+    }
+  }
+
+  function selectAll() {
+    const hideDownloaded = document.getElementById('hide-downloaded').checked;
+    let icons = filteredIcons;
+    if (hideDownloaded) icons = icons.filter(i => !downloadedIcons.has(i.name));
+    icons.forEach(i => selectedIcons.add(i.name));
+    updateSelectionUI();
+    renderIcons();
+  }
+
+  function clearSelection() {
+    selectedIcons.clear();
+    lastSelected = null;
+    updateSelectionUI();
+    renderIcons();
+  }
+
+  async function copySingleIcon(name) {
+    try {
+      const svg = await fetchIconSvg(name);
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/plain': new Blob([svg], { type: 'text/plain' }),
+          'text/html': new Blob([svg], { type: 'text/html' }),
+        })
+      ]);
+      showToast('content_copy', `"${name}" SVG gekopieerd`);
+    } catch(e) {
+      // Fallback: copy as text
+      const svg = await fetchIconSvg(name);
+      await navigator.clipboard.writeText(svg);
+      showToast('content_copy', `"${name}" SVG gekopieerd`);
+    }
+  }
+
+  async function copySelected() {
+    const names = [...selectedIcons];
+    const btn = document.getElementById('btn-copy');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Kopiëren...';
+
+    try {
+      if (names.length === 1) {
+        await copySingleIcon(names[0]);
+      } else {
+        const svgs = [];
+        for (const name of names) {
+          const svg = await fetchIconSvg(name);
+          svgs.push(`<!-- ${name} -->\n${svg}`);
+        }
+        const combined = svgs.join('\n\n');
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              'text/plain': new Blob([combined], { type: 'text/plain' }),
+              'text/html': new Blob([combined], { type: 'text/html' }),
+            })
+          ]);
+        } catch(e) {
+          await navigator.clipboard.writeText(combined);
+        }
+        showToast('content_copy', `${names.length} SVG iconen gekopieerd`);
+      }
+    } catch(e) {
+      showToast('error', 'Fout bij kopiëren: ' + e.message);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-rounded">content_copy</span> Kopieer';
+    updateSelectionUI();
+  }
+
+  async function fetchIconSvg(name) {
+    // Google Fonts static icon SVG URL for Material Symbols Rounded
+    const url = `https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${name}/wght300/24px.svg`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Failed to fetch ${name}`);
+    return await resp.text();
+  }
+
+  async function downloadSelected() {
+    const names = [...selectedIcons];
+    const alreadyDownloaded = names.filter(n => downloadedIcons.has(n));
+
+    if (alreadyDownloaded.length === names.length) {
+      showToast('warning', `Alle geselecteerde iconen zijn al gedownload`, 'warning');
+      return;
+    }
+
+    const toDownload = names.filter(n => !downloadedIcons.has(n));
+
+    if (alreadyDownloaded.length > 0) {
+      showToast('info', `${alreadyDownloaded.length} overgeslagen (al gedownload)`);
+    }
+
+    const btn = document.getElementById('btn-download');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Downloaden...';
+
+    try {
+      if (toDownload.length === 1) {
+        const svg = await fetchIconSvg(toDownload[0]);
+        downloadFile(`${toDownload[0]}.svg`, svg, 'image/svg+xml');
+        downloadedIcons.add(toDownload[0]);
+      } else {
+        // Bulk: download as individual files using a small delay
+        // Use JSZip if available, otherwise download individually
+        for (const name of toDownload) {
+          const svg = await fetchIconSvg(name);
+          downloadFile(`${name}.svg`, svg, 'image/svg+xml');
+          downloadedIcons.add(name);
+          // Small delay to prevent browser blocking
+          await new Promise(r => setTimeout(r, 100));
+        }
+      }
+
+      saveDownloaded();
+      showToast('check_circle', `${toDownload.length} icoon${toDownload.length > 1 ? 'en' : ''} gedownload`, 'success');
+      clearSelection();
+      updateStats();
+      renderIcons();
+    } catch(e) {
+      showToast('error', 'Fout bij downloaden: ' + e.message);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-rounded">download</span> Download SVG';
+    updateSelectionUI();
+  }
+
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function showToast(icon, message, type = '') {
+    const container = document.getElementById('toasts');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="material-symbols-rounded">${icon}</span>${message}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  // Detail panel
+  function openDetailPanel(icon) {
+    activeIcon = icon;
+    document.getElementById('detail-icon').textContent = icon.name;
+    document.getElementById('detail-name').textContent = icon.name.replace(/_/g, ' ');
+    document.getElementById('detail-technical').textContent = icon.name;
+
+    const badge = document.getElementById('detail-downloaded');
+    if (downloadedIcons.has(icon.name)) {
+      badge.classList.add('visible');
+    } else {
+      badge.classList.remove('visible');
+    }
+
+    const tagsSection = document.getElementById('detail-tags-section');
+    const tagsContainer = document.getElementById('detail-tags');
+    if (icon.tags && icon.tags.length > 0) {
+      tagsSection.style.display = '';
+      tagsContainer.innerHTML = icon.tags.map(t => `<span onclick="searchByTag('${t}')">${t}</span>`).join('');
+    } else {
+      tagsSection.style.display = 'none';
+    }
+
+    document.getElementById('detail-panel').classList.add('open');
+    document.getElementById('main-content').classList.add('panel-open');
+  }
+
+  function closeDetailPanel() {
+    activeIcon = null;
+    document.getElementById('detail-panel').classList.remove('open');
+    document.getElementById('main-content').classList.remove('panel-open');
+  }
+
+  async function copyDetailIcon() {
+    if (!activeIcon) return;
+    const btn = document.getElementById('detail-btn-copy');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Kopiëren...';
+    await copySingleIcon(activeIcon.name);
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-rounded">content_copy</span> Kopieer SVG';
+  }
+
+  async function downloadDetailIcon() {
+    if (!activeIcon) return;
+    const name = activeIcon.name;
+    const btn = document.getElementById('detail-btn-download');
+
+    if (downloadedIcons.has(name)) {
+      showToast('warning', `"${name}" is al gedownload`, 'warning');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Downloaden...';
+
+    try {
+      const svg = await fetchIconSvg(name);
+      downloadFile(`${name}.svg`, svg, 'image/svg+xml');
+      downloadedIcons.add(name);
+      saveDownloaded();
+      updateStats();
+      renderIcons();
+      document.getElementById('detail-downloaded').classList.add('visible');
+      showToast('check_circle', `"${name}" gedownload`, 'success');
+    } catch(e) {
+      showToast('error', 'Fout bij downloaden: ' + e.message);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-rounded">download</span> Download SVG';
+  }
+
+  function searchByTag(tag) {
+    const input = document.getElementById('search');
+    input.value = tag;
+    input.dispatchEvent(new Event('input'));
+  }
+
+  // Search with debounce
+  let searchTimeout;
+  document.getElementById('search').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        filteredIcons = allIcons;
+      } else {
+        // Score icons for relevance ranking
+        const scored = [];
+        for (const icon of allIcons) {
+          let score = 0;
+          if (icon.name === q) score = 100;                          // exact match
+          else if (icon.name.startsWith(q)) score = 80;             // starts with
+          else if (icon.name.includes(q)) score = 60;               // contains
+          else if (icon.tags.some(t => t === q)) score = 50;        // exact tag
+          else if (icon.tags.some(t => t.startsWith(q))) score = 40;
+          else if (icon.tags.some(t => t.includes(q))) score = 30;
+          else if (icon.categories.some(c => c.toLowerCase().includes(q))) score = 20;
+          if (score > 0) scored.push({ icon, score });
+        }
+        scored.sort((a, b) => b.score - a.score);
+        filteredIcons = scored.map(s => s.icon);
+      }
+      updateStats();
+      renderIcons();
+    }, 200);
+  });
+
+  // Init
+  loadIcons();
+</script>
+
+</body>
+</html>
