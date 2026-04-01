@@ -661,8 +661,9 @@
   try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
+    console.log('Firebase connected');
   } catch(e) {
-    console.warn('Firebase not configured — counters will be local only');
+    console.error('Firebase init failed:', e);
   }
 
   let allIcons = [];
@@ -689,13 +690,20 @@
     usageCounts[iconName][type]++;
 
     if (db) {
-      const ref = db.ref(`icons/${iconName}/${type}`);
-      ref.transaction(current => (current || 0) + 1);
+      const ref = db.ref('icons/' + iconName + '/' + type);
+      ref.set(usageCounts[iconName][type]).catch(e => console.error('Firebase write error:', e));
+    }
+
+    // Also save downloaded list to Firebase for cross-browser sync
+    if (type === 'downloads' && db) {
+      db.ref('downloaded/' + iconName).set(true);
     }
   }
 
   function loadCountsFromFirebase() {
     if (!db) return;
+
+    // Load usage counts
     db.ref('icons').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -708,6 +716,19 @@
         }
         renderIcons();
         if (activeIcon) updateDetailCounters(activeIcon.name);
+      }
+    });
+
+    // Load shared downloaded list
+    db.ref('downloaded').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        for (const name of Object.keys(data)) {
+          downloadedIcons.add(name);
+        }
+        saveDownloaded();
+        updateStats();
+        renderIcons();
       }
     });
   }
