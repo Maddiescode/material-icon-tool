@@ -613,14 +613,14 @@
   </div>
   <div class="filter-bar" id="filter-bar">
     <label class="filter-toggle">
-      <input type="checkbox" id="show-downloaded-only" onchange="renderIcons()">
-      <span class="material-symbols-rounded" style="font-size:16px;">download_done</span>
-      Toon alleen gedownloade
+      <input type="checkbox" id="filter-in-figma" onchange="renderIcons()">
+      <span class="material-symbols-rounded" style="font-size:16px;">check_circle</span>
+      In Figma
     </label>
     <label class="filter-toggle">
-      <input type="checkbox" id="hide-downloaded" onchange="renderIcons()">
-      <span class="material-symbols-rounded" style="font-size:16px;">visibility_off</span>
-      Verberg gedownloade
+      <input type="checkbox" id="filter-not-in-figma" onchange="renderIcons()">
+      <span class="material-symbols-rounded" style="font-size:16px;">cancel</span>
+      Niet in Figma
     </label>
     <span class="downloaded-count" id="downloaded-count"></span>
   </div>
@@ -850,25 +850,25 @@
 
   function renderIcons() {
     const container = document.getElementById('content');
-    const hideDownloaded = document.getElementById('hide-downloaded').checked;
-    const showDownloadedOnly = document.getElementById('show-downloaded-only').checked;
+    const filterInFigma = document.getElementById('filter-in-figma').checked;
+    const filterNotInFigma = document.getElementById('filter-not-in-figma').checked;
     let icons = filteredIcons;
 
     // Make filters mutually exclusive
-    if (showDownloadedOnly) {
-      icons = icons.filter(i => downloadedIcons.has(i.name));
-      document.getElementById('hide-downloaded').disabled = true;
-    } else if (hideDownloaded) {
-      icons = icons.filter(i => !downloadedIcons.has(i.name));
-      document.getElementById('show-downloaded-only').disabled = true;
+    if (filterInFigma) {
+      icons = icons.filter(i => figmaIcons.has(i.name));
+      document.getElementById('filter-not-in-figma').disabled = true;
+    } else if (filterNotInFigma) {
+      icons = icons.filter(i => !figmaIcons.has(i.name));
+      document.getElementById('filter-in-figma').disabled = true;
     } else {
-      document.getElementById('hide-downloaded').disabled = false;
-      document.getElementById('show-downloaded-only').disabled = false;
+      document.getElementById('filter-in-figma').disabled = false;
+      document.getElementById('filter-not-in-figma').disabled = false;
     }
 
-    // Update downloaded count
+    // Update Figma count
     document.getElementById('downloaded-count').textContent =
-      downloadedIcons.size > 0 ? `${downloadedIcons.size} gedownload` : '';
+      figmaIcons.size > 0 ? `${figmaIcons.size} in Figma` : '';
 
     if (icons.length === 0) {
       container.innerHTML = '<div class="empty-state"><span class="material-symbols-rounded">search_off</span><p>Geen iconen gevonden</p></div>';
@@ -954,9 +954,9 @@
   }
 
   function selectAll() {
-    const hideDownloaded = document.getElementById('hide-downloaded').checked;
     let icons = filteredIcons;
-    if (hideDownloaded) icons = icons.filter(i => !downloadedIcons.has(i.name));
+    if (document.getElementById('filter-in-figma').checked) icons = icons.filter(i => figmaIcons.has(i.name));
+    else if (document.getElementById('filter-not-in-figma').checked) icons = icons.filter(i => !figmaIcons.has(i.name));
     icons.forEach(i => selectedIcons.add(i.name));
     updateSelectionUI();
     renderIcons();
