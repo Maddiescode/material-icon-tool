@@ -690,13 +690,24 @@
     usageCounts[iconName][type]++;
 
     if (db) {
-      const ref = db.ref('icons/' + iconName + '/' + type);
-      ref.set(usageCounts[iconName][type]).catch(e => console.error('Firebase write error:', e));
+      try {
+        const ref = db.ref('icons/' + iconName + '/' + type);
+        ref.set(usageCounts[iconName][type]);
+        console.log('Firebase write:', iconName, type, usageCounts[iconName][type]);
+      } catch(e) {
+        console.error('Firebase write error:', e);
+      }
+    } else {
+      console.warn('Firebase not available, counter not synced');
     }
 
     // Also save downloaded list to Firebase for cross-browser sync
     if (type === 'downloads' && db) {
-      db.ref('downloaded/' + iconName).set(true);
+      try {
+        db.ref('downloaded/' + iconName).set(true);
+      } catch(e) {
+        console.error('Firebase download sync error:', e);
+      }
     }
   }
 
@@ -895,21 +906,22 @@
   async function copySingleIcon(name) {
     try {
       const svg = await fetchIconSvg(name);
-      const blob = new Blob([svg], { type: 'image/svg+xml' });
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          'text/plain': new Blob([svg], { type: 'text/plain' }),
-          'text/html': new Blob([svg], { type: 'text/html' }),
-        })
-      ]);
+      try {
+        // Try rich clipboard format
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': new Blob([svg], { type: 'text/plain' }),
+            'text/html': new Blob([svg], { type: 'text/html' }),
+          })
+        ]);
+      } catch(e) {
+        // Fallback: plain text
+        await navigator.clipboard.writeText(svg);
+      }
       incrementCounter(name, 'copies');
       showToast('content_copy', `"${name}" SVG gekopieerd`);
     } catch(e) {
-      // Fallback: copy as text
-      const svg = await fetchIconSvg(name);
-      await navigator.clipboard.writeText(svg);
-      incrementCounter(name, 'copies');
-      showToast('content_copy', `"${name}" SVG gekopieerd`);
+      showToast('error', 'Fout bij kopiëren: ' + e.message);
     }
   }
 
