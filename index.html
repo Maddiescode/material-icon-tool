@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Material Icons Tool</title>
+  <title>Material to Visor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -485,13 +487,53 @@
       background: #e0e0e0;
       color: #333;
     }
+
+    /* Usage counters */
+    .icon-card .usage-count {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 9px;
+      color: #aaa;
+      pointer-events: none;
+    }
+
+    .icon-card .usage-count .material-symbols-rounded {
+      font-size: 11px;
+    }
+
+    .detail-usage {
+      display: flex;
+      gap: 16px;
+      padding: 0 20px 20px;
+    }
+
+    .detail-usage-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .detail-usage-item .material-symbols-rounded {
+      font-size: 15px;
+    }
+
+    .detail-usage-item .count {
+      font-weight: 600;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
 <header>
   <div class="header-top">
-    <h1>Material Icons Tool</h1>
+    <h1>Material to Visor</h1>
     <div class="settings-badge">
       <span>Rounded</span>
       <span>Outlined</span>
@@ -563,6 +605,16 @@
         Al gedownload
       </div>
     </div>
+    <div class="detail-usage" id="detail-usage">
+      <div class="detail-usage-item">
+        <span class="material-symbols-rounded">content_copy</span>
+        <span class="count" id="detail-copy-count">0</span> gekopieerd
+      </div>
+      <div class="detail-usage-item">
+        <span class="material-symbols-rounded">download</span>
+        <span class="count" id="detail-download-count">0</span> gedownload
+      </div>
+    </div>
     <div class="detail-actions">
       <button class="btn" id="detail-btn-copy" onclick="copyDetailIcon()">
         <span class="material-symbols-rounded">content_copy</span>
@@ -594,11 +646,31 @@
     opticalSize: 24
   };
 
+  // Firebase config — replace with your own project settings
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvR9zOqUhmTIR2EC6Pp08Fqlh1oZaXgPg",
+    authDomain: "material-to-visor.firebaseapp.com",
+    databaseURL: "https://material-to-visor-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "material-to-visor",
+    storageBucket: "material-to-visor.firebasestorage.app",
+    messagingSenderId: "253767690014",
+    appId: "1:253767690014:web:536b89de78a5e49fba8b0f"
+  };
+
+  let db = null;
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+  } catch(e) {
+    console.warn('Firebase not configured — counters will be local only');
+  }
+
   let allIcons = [];
   let filteredIcons = [];
   let selectedIcons = new Set();
   let downloadedIcons = new Set();
-  let activeIcon = null; // currently shown in detail panel
+  let activeIcon = null;
+  let usageCounts = {}; // { iconName: { copies: N, downloads: N } }
 
   // Load downloaded state from localStorage
   try {
@@ -608,6 +680,42 @@
 
   function saveDownloaded() {
     localStorage.setItem('downloaded_icons', JSON.stringify([...downloadedIcons]));
+  }
+
+  // Usage counter functions
+  function incrementCounter(iconName, type) {
+    // type = 'copies' or 'downloads'
+    if (!usageCounts[iconName]) usageCounts[iconName] = { copies: 0, downloads: 0 };
+    usageCounts[iconName][type]++;
+
+    if (db) {
+      const ref = db.ref(`icons/${iconName}/${type}`);
+      ref.transaction(current => (current || 0) + 1);
+    }
+  }
+
+  function loadCountsFromFirebase() {
+    if (!db) return;
+    db.ref('icons').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        usageCounts = {};
+        for (const [name, counts] of Object.entries(data)) {
+          usageCounts[name] = {
+            copies: counts.copies || 0,
+            downloads: counts.downloads || 0
+          };
+        }
+        renderIcons();
+        if (activeIcon) updateDetailCounters(activeIcon.name);
+      }
+    });
+  }
+
+  function updateDetailCounters(name) {
+    const counts = usageCounts[name] || { copies: 0, downloads: 0 };
+    document.getElementById('detail-copy-count').textContent = counts.copies;
+    document.getElementById('detail-download-count').textContent = counts.downloads;
   }
 
   // Load icons: use embedded names, try to enrich with tags from API
@@ -683,8 +791,10 @@
       if (downloadedIcons.has(icon.name)) card.classList.add('downloaded');
       if (activeIcon && activeIcon.name === icon.name) card.classList.add('active');
 
+      const total = (usageCounts[icon.name]?.copies || 0) + (usageCounts[icon.name]?.downloads || 0);
       card.innerHTML = `
         <div class="download-indicator"><span class="material-symbols-rounded">check</span></div>
+        ${total > 0 ? `<div class="usage-count"><span class="material-symbols-rounded">trending_up</span>${total}</div>` : ''}
         <span class="material-symbols-rounded icon-display">${icon.name}</span>
         <span class="icon-name">${icon.name.replace(/_/g, ' ')}</span>
       `;
@@ -771,11 +881,13 @@
           'text/html': new Blob([svg], { type: 'text/html' }),
         })
       ]);
+      incrementCounter(name, 'copies');
       showToast('content_copy', `"${name}" SVG gekopieerd`);
     } catch(e) {
       // Fallback: copy as text
       const svg = await fetchIconSvg(name);
       await navigator.clipboard.writeText(svg);
+      incrementCounter(name, 'copies');
       showToast('content_copy', `"${name}" SVG gekopieerd`);
     }
   }
@@ -794,6 +906,7 @@
         for (const name of names) {
           const svg = await fetchIconSvg(name);
           svgs.push(`<!-- ${name} -->\n${svg}`);
+          incrementCounter(name, 'copies');
         }
         const combined = svgs.join('\n\n');
         try {
@@ -849,6 +962,7 @@
         const svg = await fetchIconSvg(toDownload[0]);
         downloadFile(`${toDownload[0]}.svg`, svg, 'image/svg+xml');
         downloadedIcons.add(toDownload[0]);
+        incrementCounter(toDownload[0], 'downloads');
       } else {
         // Bulk: download as individual files using a small delay
         // Use JSZip if available, otherwise download individually
@@ -856,6 +970,7 @@
           const svg = await fetchIconSvg(name);
           downloadFile(`${name}.svg`, svg, 'image/svg+xml');
           downloadedIcons.add(name);
+          incrementCounter(name, 'downloads');
           // Small delay to prevent browser blocking
           await new Promise(r => setTimeout(r, 100));
         }
@@ -919,6 +1034,7 @@
       tagsSection.style.display = 'none';
     }
 
+    updateDetailCounters(icon.name);
     document.getElementById('detail-panel').classList.add('open');
     document.getElementById('main-content').classList.add('panel-open');
   }
@@ -935,6 +1051,7 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-rounded">hourglass_empty</span> Kopiëren...';
     await copySingleIcon(activeIcon.name);
+    updateDetailCounters(activeIcon.name);
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-rounded">content_copy</span> Kopieer SVG';
   }
@@ -960,6 +1077,8 @@
       updateStats();
       renderIcons();
       document.getElementById('detail-downloaded').classList.add('visible');
+      incrementCounter(name, 'downloads');
+      updateDetailCounters(name);
       showToast('check_circle', `"${name}" gedownload`, 'success');
     } catch(e) {
       showToast('error', 'Fout bij downloaden: ' + e.message);
@@ -1007,6 +1126,7 @@
 
   // Init
   loadIcons();
+  loadCountsFromFirebase();
 </script>
 
 </body>
