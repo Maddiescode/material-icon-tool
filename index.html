@@ -258,7 +258,7 @@
 
     .icon-card .material-symbols-rounded.icon-display {
       font-size: 28px;
-      color: #333;
+      color: #737E8B;
     }
 
     .toast-container {
@@ -399,7 +399,7 @@
 
     .detail-preview .icon-large {
       font-size: 96px;
-      color: #1a1a1a;
+      color: #737E8B;
     }
 
     .detail-icon-name {
@@ -1148,7 +1148,10 @@
     const url = `https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${name}/wght300/24px.svg`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`Failed to fetch ${name}`);
-    return await resp.text();
+    let svg = await resp.text();
+    // Add default color #737E8B to the SVG
+    svg = svg.replace('<path ', '<path fill="#737E8B" ');
+    return svg;
   }
 
   async function downloadSelected() {
