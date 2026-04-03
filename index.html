@@ -11,6 +11,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <style>
+    :root {
+      --card-size: 120px;
+      --icon-size: 28px;
+      --name-size: 10px;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
@@ -168,6 +174,37 @@
       color: #4285f4;
     }
 
+    .size-slider {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #888;
+    }
+
+    .size-slider .material-symbols-rounded {
+      font-size: 16px;
+      color: #aaa;
+    }
+
+    .size-slider input[type="range"] {
+      width: 100px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #ddd;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .size-slider input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #4285f4;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
     .downloaded-count {
       margin-left: auto;
       font-size: 12px;
@@ -190,7 +227,7 @@
 
     .icon-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
       gap: 4px;
       padding: 16px 24px;
     }
@@ -248,7 +285,7 @@
     }
 
     .icon-card .icon-name {
-      font-size: 10px;
+      font-size: var(--name-size);
       color: #666;
       text-align: center;
       word-break: break-word;
@@ -257,7 +294,7 @@
     }
 
     .icon-card .material-symbols-rounded.icon-display {
-      font-size: 28px;
+      font-size: var(--icon-size);
       color: #737E8B;
     }
 
@@ -722,6 +759,11 @@
       <span class="material-symbols-rounded" style="font-size:16px;">cancel</span>
       Niet in Figma
     </label>
+    <div class="size-slider">
+      <span class="material-symbols-rounded">apps</span>
+      <input type="range" id="size-slider" min="80" max="200" value="120" oninput="resizeGrid(this.value)">
+      <span class="material-symbols-rounded">grid_view</span>
+    </div>
     <span class="downloaded-count" id="downloaded-count"></span>
   </div>
 </header>
@@ -1396,6 +1438,15 @@
     if (minutes < 60) return `${minutes} min geleden`;
     if (hours < 24) return `${hours} uur geleden`;
     return `${days} dag${days > 1 ? 'en' : ''} geleden`;
+  }
+
+  function resizeGrid(value) {
+    const size = parseInt(value);
+    const iconSize = Math.round(size * 0.23);
+    const nameSize = Math.max(8, Math.round(size * 0.083));
+    document.documentElement.style.setProperty('--card-size', size + 'px');
+    document.documentElement.style.setProperty('--icon-size', iconSize + 'px');
+    document.documentElement.style.setProperty('--name-size', nameSize + 'px');
   }
 
   function searchByTag(tag) {
