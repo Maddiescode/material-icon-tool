@@ -973,9 +973,31 @@
   }
 
   // Load icons: use embedded names, try to enrich with tags from API
+  function validateIcons(names) {
+    // Check which icons actually render as glyphs (not as text fallback)
+    const tester = document.createElement('span');
+    tester.className = 'material-symbols-rounded';
+    tester.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:24px;';
+    document.body.appendChild(tester);
+
+    const valid = [];
+    for (const name of names) {
+      tester.textContent = name;
+      // Real glyphs render at ~24px width; broken ones render as full text (much wider)
+      if (tester.offsetWidth <= 30) {
+        valid.push(name);
+      }
+    }
+
+    document.body.removeChild(tester);
+    return valid;
+  }
+
   async function loadIcons() {
-    // Initialize from embedded icon names
-    allIcons = ICON_NAMES.map(name => ({ name, tags: [], categories: [] }));
+    // Wait for the Material Symbols font to load before validating
+    await document.fonts.ready;
+    const validNames = validateIcons(ICON_NAMES);
+    allIcons = validNames.map(name => ({ name, tags: [], categories: [] }));
     filteredIcons = allIcons;
     updateStats();
     renderIcons();
