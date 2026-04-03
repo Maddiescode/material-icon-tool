@@ -300,6 +300,12 @@
       color: #737E8B;
     }
 
+    .icon-card .icon-display-svg {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      filter: brightness(0) saturate(100%) invert(53%) sepia(7%) saturate(617%) hue-rotate(169deg) brightness(93%) contrast(87%);
+    }
+
     .toast-container {
       position: fixed;
       bottom: 24px;
@@ -973,39 +979,32 @@
   }
 
   // Load icons: use embedded names, try to enrich with tags from API
-  function validateIcons(names) {
-    // Use large font-size to make glyph vs text difference obvious
-    // A real glyph at 200px renders at ~200px wide
-    // Text at 200px renders much wider (hundreds of px per character)
+  let brokenIcons = new Set();
+
+  function detectBrokenIcons(names) {
     const tester = document.createElement('span');
     tester.className = 'material-symbols-rounded';
     tester.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:200px;';
     document.body.appendChild(tester);
 
-    // Get reference width from a known working icon
     tester.textContent = 'check';
     const refWidth = tester.offsetWidth;
 
-    const valid = [];
     for (const name of names) {
       tester.textContent = name;
-      // A real glyph should be roughly the same width as the reference
-      // Text fallback will be many times wider
-      if (tester.offsetWidth <= refWidth * 1.5) {
-        valid.push(name);
+      if (tester.offsetWidth > refWidth * 1.5) {
+        brokenIcons.add(name);
       }
     }
 
     document.body.removeChild(tester);
-    console.log(`Icon validation: ${valid.length} valid out of ${names.length} (${names.length - valid.length} removed)`);
-    return valid;
+    console.log(`${brokenIcons.size} icons without font glyph — showing as SVG`);
   }
 
   async function loadIcons() {
-    // Wait for the Material Symbols font to load before validating
     await document.fonts.ready;
-    const validNames = validateIcons(ICON_NAMES);
-    allIcons = validNames.map(name => ({ name, tags: [], categories: [] }));
+    detectBrokenIcons(ICON_NAMES);
+    allIcons = ICON_NAMES.map(name => ({ name, tags: [], categories: [] }));
     filteredIcons = allIcons;
     updateStats();
     renderIcons();
@@ -1081,7 +1080,9 @@
         <div class="download-indicator"><span class="material-symbols-rounded">check</span></div>
         ${total > 0 ? `<div class="usage-count"><span class="material-symbols-rounded">trending_up</span>${total}</div>` : ''}
         <div class="figma-badge"><svg viewBox="0 0 38 57" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" fill="#1ABCFE"/><path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 0 1-19 0z" fill="#0ACF83"/><path d="M19 0v19h9.5a9.5 9.5 0 0 0 0-19H19z" fill="#FF7262"/><path d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z" fill="#F24E1E"/><path d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z" fill="#A259FF"/></svg></div>
-        <span class="material-symbols-rounded icon-display">${icon.name}</span>
+        ${brokenIcons.has(icon.name)
+          ? `<img class="icon-display-svg" src="https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${icon.name}/wght300/24px.svg" alt="${icon.name}" width="28" height="28">`
+          : `<span class="material-symbols-rounded icon-display">${icon.name}</span>`}
         <span class="icon-name">${icon.name.replace(/_/g, ' ')}</span>
       `;
 
@@ -1305,7 +1306,14 @@
   function openDetailPanel(icon) {
     activeIcon = icon;
     renderIcons();
-    document.getElementById('detail-icon').textContent = icon.name;
+    const detailIconEl = document.getElementById('detail-icon');
+    if (brokenIcons.has(icon.name)) {
+      detailIconEl.textContent = '';
+      detailIconEl.innerHTML = `<img src="https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsrounded/${icon.name}/wght300/24px.svg" style="width:96px;height:96px;filter:brightness(0) saturate(100%) invert(53%) sepia(7%) saturate(617%) hue-rotate(169deg) brightness(93%) contrast(87%);">`;
+    } else {
+      detailIconEl.innerHTML = '';
+      detailIconEl.textContent = icon.name;
+    }
     document.getElementById('detail-name').textContent = icon.name.replace(/_/g, ' ');
     document.getElementById('detail-technical').textContent = icon.name;
 
