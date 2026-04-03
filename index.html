@@ -974,22 +974,30 @@
 
   // Load icons: use embedded names, try to enrich with tags from API
   function validateIcons(names) {
-    // Check which icons actually render as glyphs (not as text fallback)
+    // Use large font-size to make glyph vs text difference obvious
+    // A real glyph at 200px renders at ~200px wide
+    // Text at 200px renders much wider (hundreds of px per character)
     const tester = document.createElement('span');
     tester.className = 'material-symbols-rounded';
-    tester.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:24px;';
+    tester.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:200px;';
     document.body.appendChild(tester);
+
+    // Get reference width from a known working icon
+    tester.textContent = 'check';
+    const refWidth = tester.offsetWidth;
 
     const valid = [];
     for (const name of names) {
       tester.textContent = name;
-      // Real glyphs render at ~24px width; broken ones render as full text (much wider)
-      if (tester.offsetWidth <= 30) {
+      // A real glyph should be roughly the same width as the reference
+      // Text fallback will be many times wider
+      if (tester.offsetWidth <= refWidth * 1.5) {
         valid.push(name);
       }
     }
 
     document.body.removeChild(tester);
+    console.log(`Icon validation: ${valid.length} valid out of ${names.length} (${names.length - valid.length} removed)`);
     return valid;
   }
 
