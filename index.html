@@ -1522,8 +1522,9 @@
 
   function copyIconName() {
     if (!activeIcon) return;
-    navigator.clipboard.writeText(activeIcon.name);
-    showToast('content_copy', `"${activeIcon.name}" naam gekopieerd`);
+    const displayName = activeIcon.name.replace(/_/g, ' ');
+    navigator.clipboard.writeText(displayName);
+    showToast('content_copy', `"${displayName}" naam gekopieerd`);
   }
 
   function searchByTag(tag) {
