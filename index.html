@@ -448,6 +448,9 @@
     }
 
     .detail-icon-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
       font-size: 15px;
       font-weight: 500;
       color: #333;
@@ -819,13 +822,13 @@
     </div>
     <div class="detail-preview">
       <span class="material-symbols-rounded icon-large" id="detail-icon"></span>
-      <div class="detail-icon-name" id="detail-name"></div>
-      <div class="detail-icon-technical">
-        <span id="detail-technical"></span>
+      <div class="detail-icon-name">
+        <span id="detail-name"></span>
         <button class="copy-name-btn" onclick="copyIconName()" title="Kopieer naam">
           <span class="material-symbols-rounded">content_copy</span>
         </button>
       </div>
+      <div class="detail-icon-technical" id="detail-technical"></div>
       <div class="detail-downloaded-badge" id="detail-downloaded">
         <span class="material-symbols-rounded">check_circle</span>
         Al gedownload
